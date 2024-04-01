@@ -48,7 +48,7 @@ int main() {
     barcode_map.insert(std::make_pair(63, 20));
 
     std::map<size_t, LandMark> landmark_map;
-    std::ifstream landmark_file("/home/yutaka/CLionProjects/uncertainty_propagation/data/MRCLAM_Dataset1/Landmark_Groundtruth.dat");
+    std::ifstream landmark_file("../data/MRCLAM_Dataset1/Landmark_Groundtruth.dat");
     if(landmark_file.fail()) {
         std::cout << "Failed to Open the landmark truth file" << std::endl;
         return -1;
@@ -66,7 +66,7 @@ int main() {
     }
 
     // Reading files
-    std::ifstream odometry_file("/home/yutaka/CLionProjects/uncertainty_propagation/data/MRCLAM_Dataset1/Robot1_Odometry.dat");
+    std::ifstream odometry_file("../data/MRCLAM_Dataset1/Robot1_Odometry.dat");
     if(odometry_file.fail()) {
         std::cout << "Failed to Open the ground truth file" << std::endl;
         return -1;
@@ -91,7 +91,7 @@ int main() {
         odometry_time.at(i) -= base_time;
     }
 
-    std::ifstream ground_truth_file("/home/yutaka/CLionProjects/uncertainty_propagation/data/MRCLAM_Dataset1/Robot1_Groundtruth.dat");
+    std::ifstream ground_truth_file("../data/MRCLAM_Dataset1/Robot1_Groundtruth.dat");
     if(ground_truth_file.fail()) {
         std::cout << "Failed to Open the ground truth file" << std::endl;
         return -1;
@@ -119,7 +119,7 @@ int main() {
         ground_truth_file.close();
     }
 
-    std::ifstream measurement_file("/home/yutaka/CLionProjects/uncertainty_propagation/data/MRCLAM_Dataset1/Robot1_Measurement.dat");
+    std::ifstream measurement_file("../data/MRCLAM_Dataset1/Robot1_Measurement.dat");
     if(measurement_file.fail()) {
         std::cout << "Failed to Open the ground truth file" << std::endl;
         return -1;
