@@ -21,8 +21,7 @@ using namespace SimpleVehicle;
 
 struct LandMark
 {
-    LandMark(const double _x, const double _y, const double _std_x, const double _std_y) : x(_x), y(_y), std_x(_std_x), std_y(_std_y)
-    {
+    LandMark(const double _x, const double _y, const double _std_x, const double _std_y) : x(_x), y(_y), std_x(_std_x), std_y(_std_y) {
     }
     double x;
     double y;
@@ -53,16 +52,24 @@ int main() {
 
     std::map<size_t, LandMark> landmark_map;
     std::ifstream landmark_file("../data/MRCLAM_Dataset1/Landmark_Groundtruth.dat");
+    std::string landmark_line;
+    std::getline(landmark_file, landmark_line);
+    while (landmark_line[0] == '#') {
+      std::getline(landmark_file, landmark_line);
+    }
+
     if(landmark_file.fail()) {
         std::cout << "Failed to Open the landmark truth file" << std::endl;
         return -1;
-    }
+    } 
+
     {
         size_t id;
         double x, y, std_x, std_y;
-        landmark_file >> id >> x >> y >> std_x >> std_y;
-        while(!landmark_file.eof())
-        {
+        std::istringstream landmark_ss(landmark_line);
+        landmark_ss >> id >> x >> y >> std_x >> std_y;
+
+        while(!landmark_file.eof()) {
             landmark_map.insert(std::make_pair(id, LandMark(x, y, std_x, std_y)));
             landmark_file >> id >> x >> y >> std_x >> std_y;
         }
@@ -72,6 +79,12 @@ int main() {
     // Reading files
     const std::string odometry_filename = "../data/MRCLAM_Dataset1/Robot" + std::to_string(robot_num) + "_Odometry.dat";
     std::ifstream odometry_file(odometry_filename);
+    std::string odometry_line;
+    std::getline(odometry_file, odometry_line);
+    while (odometry_line[0] == '#') {
+      std::getline(odometry_file, odometry_line);
+    }
+   
     if(odometry_file.fail()) {
         std::cout << "Failed to Open the ground truth file" << std::endl;
         return -1;
@@ -81,23 +94,30 @@ int main() {
     std::vector<double> odometry_w;
     {
         double time, v, w;
-        odometry_file >> time >> v >> w;
-        while(!odometry_file.eof())
-        {
-            odometry_time.push_back(time);
-            odometry_v.push_back(v);
-            odometry_w.push_back(w);
-            odometry_file >> time >> v >> w;
+        std::istringstream odometry_ss(odometry_line);
+        odometry_ss >> time >> v >> w;
+
+        while(!odometry_file.eof()) {
+                odometry_time.push_back(time);
+                odometry_v.push_back(v);
+                odometry_w.push_back(w);
+                odometry_file >> time >> v >> w;
+            }
+            odometry_file.close();
         }
-        odometry_file.close();
-    }
-    const double base_time = odometry_time.front();
-    for(size_t i=0; i<odometry_time.size(); ++i){
-        odometry_time.at(i) -= base_time;
+        const double base_time = odometry_time.front();
+        for(size_t i=0; i<odometry_time.size(); ++i){
+            odometry_time.at(i) -= base_time;
     }
 
     const std::string ground_truth_filename = "../data/MRCLAM_Dataset1/Robot" + std::to_string(robot_num) + "_Groundtruth.dat";
     std::ifstream ground_truth_file(ground_truth_filename);
+    std::string ground_truth_line;
+    std::getline(ground_truth_file, ground_truth_line);
+    while (ground_truth_line[0] == '#') {
+      std::getline(ground_truth_file, ground_truth_line);
+    }
+
     if(ground_truth_file.fail()) {
         std::cout << "Failed to Open the ground truth file" << std::endl;
         return -1;
@@ -108,9 +128,10 @@ int main() {
     std::vector<double> ground_truth_yaw;
     {
         double time, x, y, yaw;
-        ground_truth_file >> time >> x >> y >> yaw;
-        while(!ground_truth_file.eof())
-        {
+        std::istringstream ground_truth_ss(ground_truth_line);
+        ground_truth_ss >> time >> x >> y >> yaw;
+
+        while(!ground_truth_file.eof()) {
             if(time - base_time < 0.0) {
                 ground_truth_file >> time >> x >> y >> yaw;
                 continue;
@@ -127,6 +148,12 @@ int main() {
 
     const std::string measurement_filename = "../data/MRCLAM_Dataset1/Robot" + std::to_string(robot_num) + "_Measurement.dat";
     std::ifstream measurement_file(measurement_filename);
+    std::string measurement_line;
+    std::getline(measurement_file, measurement_line);
+    while (measurement_line[0] == '#') {
+      std::getline(measurement_file, measurement_line);
+    }
+
     if(measurement_file.fail()) {
         std::cout << "Failed to Open the ground truth file" << std::endl;
         return -1;
@@ -138,9 +165,10 @@ int main() {
     {
         double time, range, bearing;
         int id;
-        measurement_file >> time >> id >> range >> bearing;
-        while(!measurement_file.eof())
-        {
+        std::istringstream measurement_ss(measurement_line);
+        measurement_ss >> time >> id >> range >> bearing;    
+
+        while(!measurement_file.eof()) {
             if(id == 5 || id ==14 || id == 41 || id == 32 || id == 23 || id == 18 || id == 61 || time - base_time < 0.0){
                 measurement_file >> time >> id >> range >> bearing;
                 continue;
@@ -153,7 +181,6 @@ int main() {
         }
         measurement_file.close();
     }
-
     /////////////////////////////////
     ///// Setup each filter /////////
     /////////////////////////////////
