@@ -31,15 +31,17 @@ struct LandMark
 };
 
 int main() {
-    for (int i = 1; i <= 2; i++){
-      const int robot_num = i;
+  const int dataset_num = 1;
 
-      // Creating Map
-      std::map<int, int> barcode_map;
-      std::ifstream barcode_file("../data/MRCLAM_Dataset1/Barcodes.dat");
-      std::string barcode_line;
-      std::getline(barcode_file, barcode_line);
-      while (barcode_line[0] == '#') {
+  for (int i = 1; i <= 2; i++) {
+    const int robot_num = i;
+
+    // Creating Map
+    std::map<int, int> barcode_map;
+    std::ifstream barcode_file("../data/MRCLAM_Dataset" + std::to_string(dataset_num) + "/Barcodes.dat");
+    std::string barcode_line;
+    std::getline(barcode_file, barcode_line);
+    while (barcode_line[0] == '#') {
       std::getline(barcode_file, barcode_line);
       }
       for (int i = 0; i < 5; i++) {
@@ -60,7 +62,7 @@ int main() {
 
       std::map<size_t, LandMark> landmark_map;
       std::ifstream landmark_file(
-          "../data/MRCLAM_Dataset1/Landmark_Groundtruth.dat");
+          "../data/MRCLAM_Dataset" + std::to_string(dataset_num) + "/Landmark_Groundtruth.dat");
       std::string landmark_line;
       std::getline(landmark_file, landmark_line);
       while (landmark_line[0] == '#') {
@@ -86,7 +88,7 @@ int main() {
         }
 
         // Reading files
-        const std::string odometry_filename = "../data/MRCLAM_Dataset1/Robot" + std::to_string(robot_num) + "_Odometry.dat";
+        const std::string odometry_filename = "../data/MRCLAM_Dataset" + std::to_string(dataset_num) + "/Robot" + std::to_string(robot_num) + "_Odometry.dat";
         std::ifstream odometry_file(odometry_filename);
         std::string odometry_line;
         std::getline(odometry_file, odometry_line);
@@ -119,7 +121,7 @@ int main() {
                 odometry_time.at(i) -= base_time;
         }
 
-        const std::string ground_truth_filename = "../data/MRCLAM_Dataset1/Robot" + std::to_string(robot_num) + "_Groundtruth.dat";
+        const std::string ground_truth_filename = "../data/MRCLAM_Dataset" + std::to_string(dataset_num) + "/Robot" + std::to_string(robot_num) + "_Groundtruth.dat";
         std::ifstream ground_truth_file(ground_truth_filename);
         std::string ground_truth_line;
         std::getline(ground_truth_file, ground_truth_line);
@@ -155,7 +157,7 @@ int main() {
             ground_truth_file.close();
         }
 
-        const std::string measurement_filename = "../data/MRCLAM_Dataset1/Robot" + std::to_string(robot_num) + "_Measurement.dat";
+        const std::string measurement_filename = "../data/MRCLAM_Dataset" + std::to_string(dataset_num) + "/Robot" + std::to_string(robot_num) + "_Measurement.dat";
         std::ifstream measurement_file(measurement_filename);
         std::string measurement_line;
         std::getline(measurement_file, measurement_line);
@@ -407,30 +409,6 @@ int main() {
             ukf_yaw_error_sum += ukf_yaw_errors.at(i);
         }
 
-        // Output data to file
-        {
-            std::string parent_dir = "/home/hazel/I-MEFK/MKF_cpp/result/data";
-            // for(const auto& p : std::filesystem::directory_iterator("../result"))
-            // {
-            //     const auto abs_p = std::filesystem::canonical(p);
-            //     const auto flag_find = abs_p.string().find("data");
-            //     if(flag_find != std::string::npos) {
-            //         parent_dir = abs_p.string();
-            //     }
-            // }
-            parent_dir += ("/dataset1/robot" + std::to_string(robot_num));
-            std::filesystem::create_directories(parent_dir);
-            const std::string filename = parent_dir + scenario.filename_;
-            outputResultToFile(filename, times,
-                            x_true_vec, y_true_vec, yaw_true_vec,
-                            nkf_x_estimate, nkf_y_estimate, nkf_yaw_estimate,
-                            ekf_x_estimate, ekf_y_estimate, ekf_yaw_estimate,
-                            ukf_x_estimate, ukf_y_estimate, ukf_yaw_estimate,
-                            nkf_xy_errors, nkf_yaw_errors,
-                            ekf_xy_errors, ekf_yaw_errors,
-                            ukf_xy_errors, ukf_yaw_errors);
-        }
-
         std::cout << "ekf_xy_error mean: " << ekf_xy_error_sum / ekf_xy_errors.size() << std::endl;
         std::cout << "ukf_xy_error mean: " << ukf_xy_error_sum / ukf_xy_errors.size() << std::endl;
         std::cout << "nkf_xy_error mean: " << nkf_xy_error_sum / nkf_xy_errors.size() << std::endl;
@@ -438,19 +416,53 @@ int main() {
         std::cout << "ukf_yaw_error mean: " << ukf_yaw_error_sum / ukf_yaw_errors.size() << std::endl;
         std::cout << "nkf_yaw_error mean: " << nkf_yaw_error_sum / nkf_yaw_errors.size() << std::endl;
 
+        // Output data to file
+        // {
+        //     // std::string parent_dir = "/home/hazel/I-MEFK/MKF_cpp/result/data";
+        //     std::string parent_dir = "../result";
+        //     for(const auto& p : std::filesystem::directory_iterator("../result"))
+        //     {
+        //         const auto abs_p = std::filesystem::canonical(p);
+        //         const auto flag_find = abs_p.string().find("data");
+        //         if(flag_find != std::string::npos) {
+        //             parent_dir = abs_p.string();
+        //         }
+        //     }
+        //     parent_dir += ("/dataset" + std::to_string(dataset_num) + "/robot" + std::to_string(robot_num));
+        //     std::filesystem::create_directories(parent_dir);
+        //     const std::string filename = parent_dir + scenario.filename_;
+        //     outputResultToFile(filename, times,
+        //                     x_true_vec, y_true_vec, yaw_true_vec,
+        //                     nkf_x_estimate, nkf_y_estimate, nkf_yaw_estimate,
+        //                     ekf_x_estimate, ekf_y_estimate, ekf_yaw_estimate,
+        //                     ukf_x_estimate, ukf_y_estimate, ukf_yaw_estimate,
+        //                     nkf_xy_errors, nkf_yaw_errors,
+        //                     ekf_xy_errors, ekf_yaw_errors,
+        //                     ukf_xy_errors, ukf_yaw_errors);
+        // }
+
         matplotlibcpp::figure_size(1500, 900);
         std::map<std::string, std::string> nkf_key1;
         std::map<std::string, std::string> ekf_key1;
         std::map<std::string, std::string> ukf_key1;
-        ekf_key1.insert(std::pair<std::string, std::string>("label", "ekf_error"));
-        // nkf_key1.insert(std::pair<std::string, std::string>("label", "nkf_error"));
-        // ukf_key1.insert(std::pair<std::string, std::string>("label", "ukf_error"));
+        std::map<std::string, std::string> nkf_key12;
+        std::map<std::string, std::string> ekf_key12;
+        std::map<std::string, std::string> ukf_key12;
+        ekf_key1.insert(std::pair<std::string, std::string>("label", "m-ekf_xy_error"));
+        nkf_key1.insert(std::pair<std::string, std::string>("label", "m-nkf_error"));
+        ukf_key1.insert(std::pair<std::string, std::string>("label", "m-ukf_error"));
+        ekf_key12.insert(std::pair<std::string, std::string>("label", "m-ekf_yaw_error"));
+        nkf_key12.insert(std::pair<std::string, std::string>("label", "m-nkf_yaw_error"));
+        ukf_key12.insert(std::pair<std::string, std::string>("label", "m-ukf_yaw_error"));
         matplotlibcpp::plot(times, ekf_xy_errors, ekf_key1);
-        // matplotlibcpp::plot(times, nkf_xy_errors, nkf_key1);
-        // matplotlibcpp::plot(times, ukf_xy_errors, ukf_key1);
+        matplotlibcpp::plot(times, nkf_xy_errors, nkf_key1);
+        matplotlibcpp::plot(times, ukf_xy_errors, ukf_key1);
+        matplotlibcpp::plot(times, ekf_yaw_errors, ekf_key12);
+        matplotlibcpp::plot(times, nkf_yaw_errors, nkf_key12);
+        matplotlibcpp::plot(times, ukf_yaw_errors, ukf_key12);
         matplotlibcpp::legend();
         matplotlibcpp::title("Errors");
-        matplotlibcpp::save("../result/dataset1/robot" + std::to_string(robot_num) + "_error_g.png");
+        matplotlibcpp::save("../result/dataset" + std::to_string(dataset_num) + "_robot" + std::to_string(robot_num) + "_error_g.png");
         
         matplotlibcpp::clf();
 
@@ -458,18 +470,18 @@ int main() {
         std::map<std::string, std::string> nkf_key2;
         std::map<std::string, std::string> ekf_key2;
         std::map<std::string, std::string> ukf_key2;
-        ekf_key2.insert(std::pair<std::string, std::string>("label", "ekf_estimation"));
-        // nkf_key2.insert(std::pair<std::string, std::string>("label", "nkf_estimation"));
-        // ukf_key2.insert(std::pair<std::string, std::string>("label", "ukf_estimation"));
+        ekf_key2.insert(std::pair<std::string, std::string>("label", "m-ekf_estimation"));
+        nkf_key2.insert(std::pair<std::string, std::string>("label", "m-nkf_estimation"));
+        ukf_key2.insert(std::pair<std::string, std::string>("label", "m-ukf_estimation"));
         matplotlibcpp::plot(ekf_x_estimate, ekf_y_estimate, ekf_key2);
-        // matplotlibcpp::plot(nkf_x_estimate, nkf_y_estimate, nkf_key2);
-        // matplotlibcpp::plot(ukf_x_estimate, ukf_y_estimate, ukf_key2);
+        matplotlibcpp::plot(nkf_x_estimate, nkf_y_estimate, nkf_key2);
+        matplotlibcpp::plot(ukf_x_estimate, ukf_y_estimate, ukf_key2);
         matplotlibcpp::named_plot("true", x_true_vec, y_true_vec);
         matplotlibcpp::legend();
         matplotlibcpp::title("Result");
-        matplotlibcpp::save("../result/dataset1/robot" + std::to_string(robot_num) + "_traj_g.png");
+        matplotlibcpp::save("../result/dataset" + std::to_string(dataset_num) + "_robot" + std::to_string(robot_num) + "_traj_g.png");
         // matplotlibcpp::show();
-    }
+  }
 
     return 0;
 }
