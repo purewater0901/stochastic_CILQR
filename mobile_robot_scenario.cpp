@@ -187,7 +187,7 @@ int main()
 
     // Output data to file
     {
-        std::string parent_dir = "/home/yutaka/CLionProjects/uncertainty_propagation/result/data";
+        std::string parent_dir = "../result/data";
         for(const auto& p : std::filesystem::directory_iterator("../result/"))
         {
             const auto abs_p = std::filesystem::canonical(p);

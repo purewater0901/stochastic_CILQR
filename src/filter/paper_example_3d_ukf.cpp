@@ -14,13 +14,15 @@ double forward_xycossin(const Eigen::Vector3d& x){
 
 double forward(const Eigen::Vector3d& x, const std::string& type)
 {
+    double r = 1e-5;
     if(type == "xysin") {
-        return forward_xysin(x);
+        r = forward_xysin(x);
     } else if (type == "xxycos") {
-        return forward_xxycos(x);
+        r = forward_xxycos(x);
     } else if(type == "xycossin") {
-        return forward_xycossin(x);
+        r = forward_xycossin(x);
     }
+    return r;
 }
 
 PaperExample3DUKF::PaperExample3DUKF(const Eigen::Vector3d& mean, const Eigen::Matrix3d& cov) : mean_(mean),
